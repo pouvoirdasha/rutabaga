@@ -1,8 +1,9 @@
 #Ce code permet de récupérer l'edt des salles pamplemousse
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta 
+from datetime import datetime, timedelta
 import json
+import pytz
 
 class User:
     def __init__(self,identifiant : str, mdp : str):
@@ -46,27 +47,46 @@ class User:
             print("Impossible de se connecter. Edt inaccessible")
             return None
         
-        url_backend="https://pamplemousse.ensae.fr/index.php?p=4040" #backend
-        url_front="https://pamplemousse.ensae.fr/index.php?p=404"
+        url_backend="https://pamplemousse.ensae.fr/index.php?p=40a0" #backend
+        url_front="https://pamplemousse.ensae.fr/index.php?p=40a"
         headers={
         "User-Agent": "Mozilla/5.0",
         #"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         "Accept": "application/json, text/javascript, */*; q=0.01",
         "Referer": url_front,}
 
+        fuseau=pytz.timezone("Europe/Paris")
         if start is None:
-            start = datetime.now()  #maintenant
-        end= start + timedelta(hours=duree)
-        start = start.strftime("%Y-%m-%d %H:%M")
-        end=end.strftime("%Y-%m-%d %H:%M")
+            start = datetime.now(fuseau)  #maintenant
+            end= start + timedelta(hours=duree)
 
-        data= {"start": start, "end": end}
+        print(f"start : {start}")
+        print(f"end : {end}")
+        #start = start.strftime("%Y-%m-%d %H:%M")
+        #end=end.strftime("%Y-%m-%d %H:%M")
+
+        data= {
+            "start": (start - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M"), 
+            "end": (end+ timedelta(hours=3)).strftime("%Y-%m-%d %H:%M"),}
+
+        print(data)
 
         resp = self.session.post(url_backend, headers=headers, data=data)
         if resp.status_code == 200:
             print("Rutabaga a accédé à l'Edt avec succès !")
-            return json.loads(resp.text)
+           #return json.loads(resp.text)
         else:
             print(f"Rutabaga ne parvient pas à récupérer l'Edt : {resp.status_code}")
             return None
+        
+        extraction_json=json.loads(resp.text)
+        print(extraction_json)
+        edt=[]
+        for i in extraction_json:
+            i_start=fuseau.localize(datetime.fromisoformat(i["start"]))
+            i_end= fuseau.localize(datetime.fromisoformat(i["end"]))
+            if i_start <= end and i_end >= start:
+                edt.append(i)
+        
+        return edt
 
