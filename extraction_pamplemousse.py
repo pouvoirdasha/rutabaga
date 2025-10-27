@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import json
 import pytz
+import re
 
 class User:
     def __init__(self,identifiant : str, mdp : str):
@@ -38,7 +39,6 @@ class User:
             print("Echec de la connexion à Rutabaga. Identifiant ou mot de passe incorrect.")
         return self.autent
 
-    #LA METHODE NE FONCTIONNE PAS ENCORE (renvoie une liste vide), IL FAUT TROUVER LE ENDPOINT JSON de "EDT - TOUT" sur PAMPLEMOUSSE 
     def edt(self,duree=1,start : datetime =None):
         if not self.autent:
             print("Tentative de connexion à Rutabaga via Pamplemousse...")
@@ -56,37 +56,44 @@ class User:
         "Referer": url_front,}
 
         fuseau=pytz.timezone("Europe/Paris")
-        if start is None:
-            start = datetime.now(fuseau)  #maintenant
-            end= start + timedelta(hours=duree)
 
-        print(f"start : {start}")
-        print(f"end : {end}")
-        #start = start.strftime("%Y-%m-%d %H:%M")
-        #end=end.strftime("%Y-%m-%d %H:%M")
+        if start is None:
+            start = datetime.now()
+
+        start = fuseau.localize(start)
+
+        end= start + timedelta(hours=duree)
+
+        lb = datetime(start.year, start.month, start.day, 0, 0, 0, tzinfo=fuseau)
+        ub = datetime(start.year, start.month, start.day, 23, 59, 59, tzinfo=fuseau)
+
+        print(f"Rcherche d'un créneau entre : {start} et {end} ...")
 
         data= {
-            "start": (start - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M"), 
-            "end": (end+ timedelta(hours=3)).strftime("%Y-%m-%d %H:%M"),}
-
-        print(data)
+            "p": "40a0",
+            "start": (lb - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M"), 
+            "end": (ub+ timedelta(hours=1)).strftime("%Y-%m-%d %H:%M"),}
 
         resp = self.session.post(url_backend, headers=headers, data=data)
         if resp.status_code == 200:
             print("Rutabaga a accédé à l'Edt avec succès !")
-           #return json.loads(resp.text)
         else:
             print(f"Rutabaga ne parvient pas à récupérer l'Edt : {resp.status_code}")
             return None
-        
+
         extraction_json=json.loads(resp.text)
-        print(extraction_json)
+
         edt=[]
         for i in extraction_json:
-            i_start=fuseau.localize(datetime.fromisoformat(i["start"]))
+            i_start=fuseau.localize(datetime.fromisoformat(i["start"])) 
             i_end= fuseau.localize(datetime.fromisoformat(i["end"]))
             if i_start <= end and i_end >= start:
-                edt.append(i)
-        
+                temp =re.search(r"salle (.+)", i['title'])
+                if temp:  
+                    temp = temp.group(1).strip()
+                    edt.append(temp)
+                else:
+                    print(f"Extraction de la salle impossible pour l'occurence {i['title']}")
+                del temp 
         return edt
 
