@@ -1,4 +1,12 @@
-#Ce code permet de récupérer l'edt des salles pamplemousse
+"""
+Ce code permet de récupérer l'edt des salles pamplemousse via la création de la class User.
+
+Méthodes de la classe :
+    connexion -> permet de se connecter à Pamplemousse
+    edt -> permet d'obtenir les emplois du temps (salles utilisées)
+
+
+"""
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
@@ -7,13 +15,32 @@ import pytz
 import re
 
 class User:
+    """
+    La classe User permet de simuler le comportement d'un utilisateur sur Pamplemousse 
+    afin de récupèrer l'emploi du temps sur une période données.
+    """
+    
     def __init__(self,identifiant : str, mdp : str):
+        """
+        Initialisation de la classe User.
+
+        
+        Args:
+            identifiant (str) : identifiant sur pamplemousse
+            mdp (str) : mot de passe sur pamplemousse
+        """
         self.id=identifiant
         self.mdp=mdp
         self.session=requests.Session()  #sauv cookies
         self.autent=False
     
-    def connexion(self):
+    def connexion(self) -> bool:
+        """
+        Connexion sur Pamplemousse.
+
+        Return:
+            bool: True si la connexion a pamplemousse fonctionne, False sinon
+        """
         url_page ="https://pamplemousse.ensae.fr"
         resp_page =self.session.get(url_page)
         soup = BeautifulSoup(resp_page.text, 'html.parser')
@@ -39,7 +66,18 @@ class User:
             print("Echec de la connexion à Rutabaga. Identifiant ou mot de passe incorrect.")
         return self.autent
 
+    
     def edt(self,duree=1,start : datetime =None):
+        """
+        Récupération de la liste des salles occupées d'après Pamplemousse sur un créneau donnée.
+
+        Args:
+            duree (int): durée du créneau pour obtenir les salles occupées (argument optionnel, par défaut vaut 1)
+            start (int): date et heure du début de la recherche des salles occupées (argument optionnel, par défaut vaut la date et heure actuelle)
+
+        Return:
+            list de str: renvoie le nom des salles (ou None en cas d'échec)
+        """
         if not self.autent:
             print("Tentative de connexion à Rutabaga via Pamplemousse...")
             self.connexion()
