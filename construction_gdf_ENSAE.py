@@ -124,3 +124,8 @@ for idx, row in gdf_polys.iterrows():
 ax.invert_yaxis()
 plt.show()
 plt.savefig("plan_virtuel_rutabaga.png", dpi=300)
+
+#enregistrement df
+print("Ecriture du gdf produit par Rutabaga.")
+gdf=gdf.drop(columns=["geometry", "area_px"]).copy()
+gdf.to_file("plan_virtuel_rutabaga.gpkg", layer="salles", driver="GPKG")
