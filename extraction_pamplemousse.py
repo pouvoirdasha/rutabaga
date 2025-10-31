@@ -10,6 +10,7 @@ Méthodes de la classe :
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
+import geopandas as gpd
 import json
 import pytz
 import re
@@ -67,7 +68,7 @@ class User:
         return self.autent
 
     
-    def edt(self,duree=1,start : datetime =None):
+    def salles_occupees(self,duree=1,start : datetime =None):
         """
         Récupération de la liste des salles occupées d'après Pamplemousse sur un créneau donnée.
 
@@ -135,3 +136,11 @@ class User:
                 del temp 
         return edt
 
+    def salles_libres(self,duree=1,start : datetime =None):
+        gdf = gpd.read_file("plan_virtuel_rutabaga.gpkg", layer="salles")
+        salles_occ=self.salles_occupees(duree=duree, start=start)
+        if salles_occ is None or  gdf is None:
+            return None
+        liste_salles = [s for s in gdf['label'].tolist() if s is not None and re.search(r'\d', s)]
+        liste_salles_libres = [s for s in liste_salles if s not in salles_occ]
+        return liste_salles_libres
