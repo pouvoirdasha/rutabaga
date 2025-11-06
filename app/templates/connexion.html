@@ -3,15 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Rutabaga</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ proxy_prefix }}/static/css/style.css">
 </head>
 <body>
-    <div class="login-box">
+    <!-- Titre global en haut -->
+    <header class="page-header">
         <h1>Rutabaga</h1>
+    </header>
+    
+    <div class="login-box">
 
-        {% if message %}
-            <p style="color: red; font-weight: bold;">{{ message }}</p>
-        {% endif %}
+        <h2>Connexion</h2>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="color:red;">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
         <form method="post" action="{{ proxy_prefix }}/">
             <input type="text" name="login" placeholder="Login" value="{{ login | default('') }}" required>

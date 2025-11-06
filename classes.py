@@ -14,6 +14,13 @@ import geopandas as gpd
 import json
 import pytz
 import re
+import os
+
+
+#chemins
+base_dir = os.path.dirname(os.path.abspath(__file__))
+gdf_path = os.path.join(base_dir, "plan_virtuel_rutabaga.gpkg")
+
 
 class User:
     """
@@ -68,7 +75,7 @@ class User:
         return self.autent
 
     
-    def salles_occupees(self,duree=1,start : datetime =None):
+    def salles_occupees(self,start : datetime =None, end : datetime=None):
         """
         Récupération de la liste des salles occupées d'après Pamplemousse sur un créneau donnée.
 
@@ -97,11 +104,14 @@ class User:
         fuseau=pytz.timezone("Europe/Paris")
 
         if start is None:
-            start = datetime.now()
+            start = datetime.now(fuseau)
+        elif start.tzinfo is None:
+            start = fuseau.localize(start)
 
-        start = fuseau.localize(start)
-
-        end= start + timedelta(hours=duree)
+        if end is None:
+            end = start + timedelta(hours=1)
+        elif end.tzinfo is None:
+            end = fuseau.localize(end)
 
         lb = datetime(start.year, start.month, start.day, 0, 0, 0, tzinfo=fuseau)
         ub = datetime(start.year, start.month, start.day, 23, 59, 59, tzinfo=fuseau)
@@ -134,12 +144,13 @@ class User:
                 else:
                     print(f"Extraction de la salle impossible pour l'occurence {i['title']}")
                 del temp 
+                edt = list(set(edt))
         return edt
 
-    def salles_libres(self,duree=1,start : datetime =None):
-        gdf = gpd.read_file("plan_virtuel_rutabaga.gpkg", layer="salles")
-        salles_occ=self.salles_occupees(duree=duree, start=start)
-        if salles_occ is None or  gdf is None:
+    def salles_libres(self,start : datetime =None, end : datetime =None):
+        gdf = gpd.read_file(gdf_path, layer="salles")
+        salles_occ=self.salles_occupees(start=start, end =end)
+        if salles_occ is None or gdf is None:
             return None
         liste_salles = [s for s in gdf['label'].tolist() if s is not None and re.search(r'\d', s)]
         liste_salles_libres = [s for s in liste_salles if s not in salles_occ]
@@ -148,7 +159,7 @@ class User:
 
 
 class Salle:
-     """
+    """
     La classe Salle permet de calculer des informations sur les salles
     """
 

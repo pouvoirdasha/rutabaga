@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rutabaga - Accueil</title>
+    <link rel="stylesheet" href="{{ proxy_prefix }}/static/css/style.css">
+</head>
+<body>
+    <!-- Titre global en haut -->
+    <header class="page-header">
+        <h1>Rutabaga</h1>
+    </header>
+
+    <div class="container">
+
+        <p>Bienvenue sur Rutabaga {{ login }} ! <p>
+
+        <h2>Choisissez un créneau horaire :</h2>
+
+        <form method="post" action="{{ proxy_prefix }}/home">
+
+            <label for="date">Jour :</label>
+            <input type="date" id="date" name="date" required
+                    min="{{ min_date }}" max="{{ max_date }}" value="{{ date }}">
+
+            <label for="start_time">Début :</label>
+            <input type="time" id="start_time" name="start_time"
+                    value="{{ start_time }}" min="{{ min_time }}" max="{{ max_time }}" step="900" required>
+
+            <label for="end_time">Fin :</label>
+            <input type="time" id="end_time" name="end_time"
+                    value="{{ end_time }}" min="{{ min_time }}" max="{{ max_time }}" step="900" required>
+
+            <button type="submit">Valider</button>
+        </form>
+
+        {% if salles is not none %}
+        <h2>Résultat de la requête :</h2>
+            {% if salles %}
+                <p>Salles libres :<p>
+                <ul>
+                {% for salle in salles %}
+                    <li>{{ salle }}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>Aucune salle libre sur ce créneau.</p>
+            {% endif %}
+        {% endif %}
+
+    </div>
+</body>
+</html>
