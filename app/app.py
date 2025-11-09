@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from rutabaga.classes import User # gestion de l'utilisation et de sa connexion
 import pytz # gestion des fuseaux horaire
 import secrets # système de clé secrètes
+import geopandas as gpd
+import folium
 
 
 ###########################
@@ -137,3 +139,47 @@ def home():
         end_time=end_time,
         date=date,
         salles=salles)
+
+
+@app.route("/carte_salles")
+def carte_salles():
+    # Récupération de la plage horaire depuis l'URL
+    start_str = request.args.get("start")
+    end_str = request.args.get("end")
+
+    # Conversion en datetime si présent
+    start_dt = datetime.fromisoformat(start_str) if start_str else None
+    end_dt = datetime.fromisoformat(end_str) if end_str else None
+
+    gdf = gpd.read_file("chemin/vers/ton/fichier.gpkg", layer="salles")
+
+    # Salles libre
+    salles = user.salles_libres(start=start_dt, end=end_dt)
+
+    # Ajout d'une colonne "statut" pour la coloration
+    gdf["statut"] = gdf["label"].apply(
+        lambda x: "libre" if x in salles_libres else "occupée"
+    )
+
+    # Créer une carte centrée sur la zone du plan
+    m = folium.Map(location=[48.845, 2.336], zoom_start=18, tiles="cartodbpositron")
+
+    # Ajouter les polygones colorés
+    for _, row in gdf.iterrows():
+        color = "green" if row["statut"] == "libre" else "lightgray"
+        folium.GeoJson(
+            row["geometry"],
+            style_function=lambda feature, color=color: {
+                "fillColor": color,
+                "color": "black",
+                "weight": 0.5,
+                "fillOpacity": 0.6,
+            },
+            tooltip=row["label"],
+        ).add_to(m)
+
+    # Sauvegarder la carte dans un fichier HTML temporaire
+    m.save("app/templates/carte_salles.html")
+    
+    # Retourner la page avec la carte
+    return render_template("carte_salles.html")

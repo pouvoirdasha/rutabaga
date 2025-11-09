@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Carte des salles libres</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Carte des salles libres</h2>
+    <div id="map">
+        {{ m|safe }}
+    </div>
+</body>
+</html>

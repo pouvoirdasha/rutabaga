@@ -48,6 +48,17 @@
             {% endif %}
         {% endif %}
 
+        {% if salles %}
+    <div style="text-align:center; margin-top:20px;">
+        <a href="{{ proxy_prefix }}/carte_salles?date={{ date }}&start_time={{ start_time }}&end_time={{ end_time }}"
+           class="btn"
+           style="background-color:#4CAF50; color:white; padding:10px 20px; border-radius:5px; text-decoration:none;">
+           🗺️ Voir la carte des salles libres
+        </a>
+    </div>
+        {% endif %}
+
+
     </div>
 </body>
 </html>
