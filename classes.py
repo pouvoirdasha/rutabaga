@@ -59,6 +59,8 @@ class User:
             "sph_org_location": sph_org_location,
             "sph_username": self.id, 
             "sph_password": self.mdp,}
+        # Suppression du MDP
+        self.mdp = None
         headers = {"User-Agent": "Mozilla/5.0","Referer": url_page}
         response = self.session.post(url_connexion, data=data,headers=headers)
     
@@ -157,7 +159,7 @@ class User:
             end (datetime) : fin du créneau
 
         Return:
-            liste contenant les noms des salles disponibles 
+            liste contenant les noms) des salles disponibles 
               entre `start` et `end`.
         """
         gdf = gpd.read_file(gdf_path, layer="salles")
