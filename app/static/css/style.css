@@ -10,3 +10,8 @@ body {
 header.page-header h1 {
     color: purple;
 }
+
+.page-header .logo {
+    height: 120px;  /* adapte selon ta taille souhaitée */
+    width: auto;
+}
