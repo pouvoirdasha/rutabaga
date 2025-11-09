@@ -148,6 +148,18 @@ class User:
         return edt
 
     def salles_libres(self,start : datetime =None, end : datetime =None):
+        """
+        Permet d'obtenir les salles libre
+        sur un intervalle de temps.
+
+        Args:
+            start (datetime) : début du créneau
+            end (datetime) : fin du créneau
+
+        Return:
+            liste contenant les noms des salles disponibles 
+              entre `start` et `end`.
+        """
         gdf = gpd.read_file(gdf_path, layer="salles")
         salles_occ=self.salles_occupees(start=start, end =end)
         if salles_occ is None or gdf is None:
