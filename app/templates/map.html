@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Plan de l'ENSAE</title>
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    #map { width: 100%; height: 100vh; background: #f3f3f3; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin="">
+  </script>
+
+  <script>
+    // Init carte en coordonnées simples (plan 2D sans projection)
+    const map = L.map("map", {
+      crs: L.CRS.Simple,
+      minZoom: -4,
+    });
+
+    // URL du GeoJSON côté Flask (géré via /static), avec proxy éventuel
+    const geojsonUrl = "{{ proxy_prefix }}/static/data/plan_virtuel_rutabaga.geojson";
+
+    fetch(geojsonUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Erreur HTTP " + response.status);
+        }
+        return response.json();
+      })
+      .then(data => {
+        const layer = L.geoJSON(data, {
+          style: {
+            color: "#ff0000",
+            weight: 1,
+            fillOpacity: 0.4
+          },
+          onEachFeature: (feature, layer) => {
+            const p = feature.properties || {};
+            layer.bindPopup(`<b>${p.name || "Room"}</b>`);
+          }
+        }).addTo(map);
+
+        // Adapter la vue au plan
+        map.fitBounds(layer.getBounds());
+      })
+      .catch(err => {
+        console.error("Erreur lors du chargement du GeoJSON :", err);
+        alert("Impossible de charger le plan (GeoJSON). Vérifie le chemin dans /static/data/.");
+      });
+  </script>
+</body>
+</html>

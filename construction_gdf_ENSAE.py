@@ -14,6 +14,7 @@ from geopandas import sjoin
 import re
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 path_plan = "planENSAE2.png"
 
@@ -136,4 +137,13 @@ plt.savefig("plan_virtuel_rutabaga.png", dpi=300)
 # enregistrement df
 print("Ecriture du gdf produit par Rutabaga.")
 gdf = gdf.drop(columns=["geometry", "area_px"]).copy()
-gdf.to_file("plan_virtuel_rutabaga.gpkg", layer="salles", driver="GPKG")
+
+out_dir = Path("rooms")
+app_dir = Path("app")
+gpkg_path = out_dir / "plan_virtuel_rutabaga.gpkg"
+geojson_path = app_dir / "static/data/plan_virtuel_rutabaga.geojson"
+
+gdf.to_file(gpkg_path, layer="salles", driver="GPKG")
+gdf.to_file(geojson_path, layer="salles", driver="GeoJSON")
+
+print("Fichiers écrits : plan_virtuel_rutabaga.gpkg et plan_virtuel_rutabaga.geojson")
