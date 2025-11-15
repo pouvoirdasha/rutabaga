@@ -4,7 +4,7 @@
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import datetime, timedelta
-from rutabaga.classes import User  # gestion de l'utilisation et de sa connexion
+from rooms.get_rooms import User  # gestion de l'utilisation et de sa connexion
 import pytz  # gestion des fuseaux horaire
 import secrets  # système de clé secrètes
 
