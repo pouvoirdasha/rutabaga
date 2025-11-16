@@ -15,9 +15,34 @@
   <style>
     html, body { margin: 0; padding: 0; height: 100%; }
     #map { width: 100%; height: 100vh; background: #f3f3f3; }
+
+    /* Bouton retour en haut-droite */
+    #back-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      z-index: 1000;
+      padding: 10px 15px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    #back-btn:hover {
+      background: #f0f0f0;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Bouton Retour qui conserve les salles disponibles -->
+  <button id="back-btn" type="button" onclick="window.history.back();">
+  ⟵ Retour
+  </button>
+
+
   <div id="map"></div>
 
   <!-- Leaflet JS -->
@@ -34,14 +59,12 @@
       minZoom: -4,
     });
 
-    // URL du GeoJSON côté Flask (géré via /static), avec proxy éventuel
+    // URL du GeoJSON côté Flask
     const geojsonUrl = "{{ proxy_prefix }}/static/data/plan_virtuel_rutabaga.geojson";
 
     fetch(geojsonUrl)
       .then(response => {
-        if (!response.ok) {
-          throw new Error("Erreur HTTP " + response.status);
-        }
+        if (!response.ok) throw new Error("Erreur HTTP " + response.status);
         return response.json();
       })
       .then(data => {
@@ -57,7 +80,6 @@
           }
         }).addTo(map);
 
-        // Adapter la vue au plan
         map.fitBounds(layer.getBounds());
       })
       .catch(err => {

@@ -36,6 +36,7 @@
 
         {% if salles is not none %}
         <h2>Résultat de la requête :</h2>
+
             {% if salles %}
                 <p>Salles libres :<p>
                 <ul>
@@ -43,6 +44,11 @@
                     <li>{{ salle }}</li>
                 {% endfor %}
                 </ul>
+                <div style="margin-top: 1.5rem;">
+                    <a href="{{ proxy_prefix }}/map">
+                        <button type="button">Voir sur la carte</button>
+                    </a>
+                </div>
             {% else %}
                 <p>Aucune salle libre sur ce créneau.</p>
             {% endif %}
