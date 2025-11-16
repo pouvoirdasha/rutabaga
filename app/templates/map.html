@@ -33,15 +33,44 @@
     #back-btn:hover {
       background: #f0f0f0;
     }
+
+    /* Style des labels de salle (numéro au centroïde) */
+    .room-label {
+      color: #b0b0b0;          /* gris clair */
+      font-size: 11px;
+      font-weight: 600;
+      text-shadow: 0 0 2px #ffffff;
+      white-space: nowrap;
+
+       /* Centrages horizontal & vertical autour du point */
+      position: relative;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    /* Salles libres : labels en violet plus marqué */
+    .room-label-free {
+      color: #7c3aed;   /* violet */
+      font-size: 11px;
+      font-weight: 700;
+      text-shadow: 0 0 2px #ffffff;
+      white-space: nowrap;
+      position: relative;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
   </style>
 </head>
 <body>
 
   <!-- Bouton Retour qui conserve les salles disponibles -->
   <button id="back-btn" type="button" onclick="window.history.back();">
-  ⟵ Retour
+    ⟵ Retour
   </button>
-
 
   <div id="map"></div>
 
@@ -58,6 +87,18 @@
       crs: L.CRS.Simple,
       minZoom: -4,
     });
+    
+    // Liste des salles libres (Python -> JS). On doit s'assurer d'avoir concordance exacte des labels.
+    const rawSallesLibres = {{ (salles_libres | default([])) | tojson | safe }};
+    
+    // On retire les espaces et on met en majuscules pour éviter les erreurs de correspondance
+    const sallesLibres = (rawSallesLibres || []).map(s =>
+      String(s).trim().toUpperCase().replace(/\s+/g, "")
+    );
+
+     // Pour débug -> à retirer une fois que le surbrillage fonctionne bien
+    console.log("rawSallesLibres =", rawSallesLibres);
+    console.log("sallesLibres normalisées =", sallesLibres);
 
     // URL du GeoJSON côté Flask
     const geojsonUrl = "{{ proxy_prefix }}/static/data/plan_virtuel_rutabaga.geojson";
@@ -69,14 +110,46 @@
       })
       .then(data => {
         const layer = L.geoJSON(data, {
-          style: {
-            color: "#ff0000",
-            weight: 1,
-            fillOpacity: 0.4
+          // Style : violet très clair + contour noir, ou foncé si occupée
+          style: function (feature) {
+            const p = feature.properties || {};
+            const rawLabel = p.label || "";
+            const normLabel = String(rawLabel).trim().toUpperCase().replace(/\s+/g, "");
+            const isFree = sallesLibres.includes(normLabel);
+
+            return {
+              color: "#000000",                            // contour noir
+              weight: 1,
+              fillColor: isFree ? "#C084FC" : "#E8D9FF",   // violet plus foncé si libre
+              fillOpacity: isFree ? 0.9 : 0.7
+            };
           },
           onEachFeature: (feature, layer) => {
             const p = feature.properties || {};
-            layer.bindPopup(`<b>${p.name || "Room"}</b>`);
+            const rawLabel = p.label || "";
+            const normLabel = String(rawLabel).trim().toUpperCase().replace(/\s+/g, "");
+            const isFree = sallesLibres.includes(normLabel);
+
+            // Popup
+            layer.bindPopup(
+              `<b>${rawLabel}</b>` +
+              (isFree ? "<br><span style='color:#7c3aed;'>Salle disponible</span>" : "")
+            );
+
+            // Label du numéro de salle au centroïde
+            // On utilise le centroïde approximé via le centre de l'emprise
+            const bounds = layer.getBounds();
+            const center = bounds.getCenter();
+
+            L.marker(center, {
+              icon: L.divIcon({
+                className: "",
+                html: `<div class="${isFree ? "room-label-free" : "room-label"}">${rawLabel}</div>`,
+                iconSize: null,
+                iconAnchor: [0, 0]
+              }),
+              interactive: false
+            }).addTo(map);
           }
         }).addTo(map);
 
@@ -84,7 +157,7 @@
       })
       .catch(err => {
         console.error("Erreur lors du chargement du GeoJSON :", err);
-        alert("Impossible de charger le plan (GeoJSON). Vérifie le chemin dans /static/data/.");
+        alert("Impossible de charger le plan (GeoJSON).");
       });
   </script>
 </body>

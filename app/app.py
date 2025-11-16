@@ -78,6 +78,7 @@ def connexion():
         # lorsqu'il y a une erreur on l'affiche dans le terminal
         except Exception as e:
             message = f"Erreur : {str(e)}"
+            #ATTENTION : cette variable n'est pas utilisée !!
 
     # Lorsque la méthode est GET : on affiche la page de connexion
     return render_template("connexion.html", login=login, proxy_prefix=proxy_prefix)
@@ -132,6 +133,13 @@ def home():
         # avec salles_libres de la classe User
         salles = user.salles_libres(start=start_dt, end=end_dt)
 
+        #On stocke les salles dans la session pour les récupérer dans la page map
+        session["salles_libres"] = salles
+    
+    else:
+        # si GET, on récupère  les dernières salles calculées
+        salles = session.get("salles_libres")
+
     # affichage du résultat
     return render_template(
         "home.html",
@@ -145,4 +153,11 @@ def home():
 
 @app.route("/map")
 def map_view():
-    return render_template("map.html")
+    proxy_prefix = get_proxy_prefix()
+    salles_libres = session.get("salles_libres", [])
+
+    return render_template(
+        "map.html",
+        proxy_prefix=proxy_prefix,
+        salles_libres=salles_libres,
+    )

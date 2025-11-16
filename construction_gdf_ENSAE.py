@@ -3,7 +3,6 @@ Ce code permet de construire le geodataframe des salles du 2e étage de l'ENSAE.
 """
 
 import cv2
-import matplotlib
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon
 from shapely.geometry import Point
