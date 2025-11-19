@@ -2,9 +2,19 @@
 Ce code permet de récupérer l'edt des salles pamplemousse via la création
 de la class User.
 
+
+Classes :
+-------
+User :
+    Permet de se connecter à Pamplemousse, récupérer l'EDT complet
+    et déterminer les salles occupées ou libres sur un créneau donné.
+
+
 Méthodes de la classe :
+-------
     connexion -> permet de se connecter à Pamplemousse
-    edt -> permet d'obtenir les emplois du temps (salles utilisées)
+    salles_occupees -> permet d'obtenir les emplois du temps (salles utilisées)
+    salles_libres -> permet d'obtenir les emplois du temps (salles inutilisées)
 
 """
 
@@ -25,20 +35,37 @@ import json
 import re
 import os
 
-# Chemins
+# ============================================================
+# Définition du chemin du plan géospatial
+# ============================================================
+
+# Chemins : emplacement du fichier gpkg qui contient le plan
 base_dir = os.path.dirname(os.path.abspath(__file__))
 gdf_path = os.path.join(base_dir, "plan_virtuel_rutabaga.gpkg")
 
+
+# ============================================================
+# Classe User
+# ============================================================
 
 class User:
     """
     La classe User permet de simuler le comportement d'un utilisateur sur
     Pamplemousse afin de récupèrer l'emploi du temps sur une période donnée.
+
+        Paramètres
+    ----------
+    identifiant : str
+        Identifiant de connexion Pamplemousse.
+    mdp : str
+        Mot de passe de connexion Pamplemousse.
     """
 
     def __init__(self, identifiant: str, mdp: str):
         """
         Initialisation de la classe User.
+        Cette sessions permet de conserver les cookies pour rester
+        connecté à Pamplemousse.
 
 
         Args:
@@ -58,8 +85,12 @@ class User:
             bool: True si la connexion a pamplemousse fonctionne, False sinon
         """
         url_page = "https://pamplemousse.ensae.fr"
+
+        # requête initiale
         resp_page = self.session.get(url_page)
         soup = BeautifulSoup(resp_page.text, "html.parser")
+
+        # indentification
         sph_org_location = soup.find("input", {"name": "sph_org_location"})[
             "value"
         ]  # scraping sur la page source pamplemousse
@@ -73,6 +104,8 @@ class User:
             "sph_password": self.mdp,
         }
         headers = {"User-Agent": "Mozilla/5.0", "Referer": url_page}
+
+        # tentative de connexion
         response = self.session.post(url_connexion, data=data, headers=headers)
 
         if response.status_code != 200:
@@ -80,6 +113,7 @@ class User:
                 f"Rutabaga ne parvient pas à établir le lien avec Pamplemousse : {response.status_code}"
             )
 
+        # vérification des cookies pour savoir si l'on est bien connecté
         cookies_connexion = self.session.cookies.get_dict()
         if "PHPSESSID" in cookies_connexion:
             print("La connexion à Rutabaga via Pamplemousse est établie.")
@@ -91,16 +125,24 @@ class User:
             )
         return self.autent
 
-    def salles_occupees(self, start: datetime = None, end: datetime = None):
+
+    def salles_occupees(self,
+    start: datetime | None = None, 
+    end: datetime | None = None) -> list[str] | None:
         """
         Récupération de la liste des salles occupées d'après Pamplemousse sur un créneau donnée.
 
+        Par défaut :
+        - `start` = maintenant (fuseau Europe/Paris)
+        - `end` = start + 1 heure
+
         Args:
-            duree (int): durée du créneau pour obtenir les salles occupées (argument optionnel, par défaut vaut 1)
             start (int): date et heure du début de la recherche des salles occupées (argument optionnel, par défaut vaut la date et heure actuelle)
+            end (int): date et heure de la fin de la recherche des salles occupées (argument optionnel, par défaut start +1h)
+
 
         Return:
-            list de str: renvoie le nom des salles (ou None en cas d'échec)
+            list[str] | None: renvoie le nom des salles (ou None en cas d'échec)
         """
         if not self.autent:
             print("Tentative de connexion à Rutabaga via Pamplemousse...")
@@ -111,6 +153,7 @@ class User:
 
         url_backend = "https://pamplemousse.ensae.fr/index.php?p=40a0"  # backend
         url_front = "https://pamplemousse.ensae.fr/index.php?p=40a"
+        
         headers = {
             "User-Agent": "Mozilla/5.0",
             # "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -118,13 +161,16 @@ class User:
             "Referer": url_front,
         }
 
+        # heure de Paris
         fuseau = pytz.timezone("Europe/Paris")
 
+        # récupération de l'heure actuelle
         if start is None:
             start = datetime.now(fuseau)
         elif start.tzinfo is None:
             start = fuseau.localize(start)
 
+        # heure de fin par défaut = start +1h
         if end is None:
             end = start + timedelta(hours=1)
         elif end.tzinfo is None:
@@ -135,6 +181,7 @@ class User:
 
         print(f"Rcherche d'un créneau entre : {start} et {end} ...")
 
+        # on récupère l'emploi du temps de toute la journée
         data = {
             "p": "40a0",
             "start": (lb - timedelta(hours=1)).strftime("%Y-%m-%d %H:%M"),
@@ -152,6 +199,7 @@ class User:
 
         extraction_json = json.loads(resp.text)
 
+        # on récupère les salles dispo entre start et end
         edt = []
         for i in extraction_json:
             i_start = fuseau.localize(datetime.fromisoformat(i["start"]))
@@ -178,51 +226,23 @@ class User:
             end (datetime) : fin du créneau
 
         Return:
-            liste contenant les noms des salles disponibles entre `start` et `end`.
+            list[str] | None contenant les noms des salles disponibles entre `start` et `end`.
         """
+
+        # lecture du plan virtuel
         gdf = gpd.read_file(gdf_path, layer="salles")
+
+        # on récupère les salles dispo
         salles_occ = self.salles_occupees(start=start, end=end)
         if salles_occ is None or gdf is None:
             return None
+
+        # on récupère les salles du plan du 2e étage
         liste_salles = [
             s for s in gdf["label"].tolist() if s is not None and re.search(r"\d", s)
         ]
+
+        # on en déduit les salles dispo = salles non occupées
         liste_salles_libres = [s for s in liste_salles if s not in salles_occ]
         return liste_salles_libres
 
-
-class Salle:
-    """
-    La classe Salle permet de calculer des informations sur les salles
-    """
-
-    def __init__(self, label: str):
-        """
-        Initialisation de la classe User.
-        Args:
-            label (str) : nom de la salle
-        """
-        self.label = label
-        self.geometry = None
-        # ajouter la géométrie !
-
-    def distance(self, objet: str):
-        """
-        Idée : pour un objet donné on calcul la distance de la salle à l'objet
-        cf. Isssues
-        """
-
-    def projection_couloir(self):
-        """
-        Projection dans le couloir pour calcul des déplacements
-        """
-
-    def capacite(self):
-        """
-        Estimation capacité avec l'aire (trouver un ratio nb places / m2)
-        """
-
-    def info(self):
-        """
-        detection si salle info : teste la présence d'un i dans le label
-        """

@@ -4,7 +4,8 @@
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import datetime, timedelta
-from rooms.get_rooms import User  # gestion de l'utilisation et de sa connexion
+from rutabaga.rooms.users import User #gestion utilisateur et connexion
+from rutabaga.rooms.salles import Salle #gestion utilisateur et connexion
 import pytz  # gestion des fuseaux horaire
 import secrets  # système de clé secrètes
 
@@ -77,8 +78,7 @@ def connexion():
 
         # lorsqu'il y a une erreur on l'affiche dans le terminal
         except Exception as e:
-            message = f"Erreur : {str(e)}"
-            #ATTENTION : cette variable n'est pas utilisée !!
+            message = f"Erreur : {e}"
 
     # Lorsque la méthode est GET : on affiche la page de connexion
     return render_template("connexion.html", login=login, proxy_prefix=proxy_prefix)

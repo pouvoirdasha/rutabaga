@@ -1,7 +1,21 @@
-#### IMPORTS ####
+"""
+Ce code permet de faire des "calculs" sur les salles.
 
 
-##### SALLE - classe
+Classes :
+-------
+Salle :
+    Permet de se connecter à Pamplemousse, récupérer l'EDT complet
+    et déterminer les salles occupées ou libres sur un créneau donné.
+
+
+Méthodes de la classe :
+-------
+    distance
+    projection_couloir
+    capacite
+    info
+"""
 
 
 class Salle:
