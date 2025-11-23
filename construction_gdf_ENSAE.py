@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-path_plan = "planENSAE2.png"
+path_plan = "rutabaga/planENSAE2.png"
 
 # 1. A partir d'une image on extrait les salles en gdf
 
@@ -145,8 +145,8 @@ plt.savefig("plan_virtuel_rutabaga.png", dpi=300)
 print("Ecriture du gdf produit par Rutabaga.")
 gdf = gdf.drop(columns=["geometry", "area_px"]).copy()
 
-out_dir = Path("rooms")
-app_dir = Path("app")
+out_dir = Path("rutabaga/rooms")
+app_dir = Path("rutabaga/app")
 gpkg_path = out_dir / "plan_virtuel_rutabaga.gpkg"
 geojson_path = app_dir / "static/data/plan_virtuel_rutabaga.geojson"
 
