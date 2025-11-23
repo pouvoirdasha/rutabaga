@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-path_plan = "planENSAE2.png"
+path_plan = "rutabaga/planENSAE2.png"
 
 # 1. A partir d'une image on extrait les salles en gdf
 
@@ -26,7 +26,8 @@ plan = cv2.imread(path_plan, cv2.IMREAD_GRAYSCALE)
 _, thresh = cv2.threshold(plan, 100, 255, cv2.THRESH_BINARY)  # discrimination N&B
 contours, _ = cv2.findContours(
     thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE
-)  # extraction contours
+)  # extraction contours -> on passe l'image en gris puis en noir et blanc
+# pour extraire les contours avec findContours
 
 # élimination bruit + création gdf
 polys = []
@@ -34,6 +35,8 @@ for c in contours:
     if cv2.contourArea(c) > 500:  # supression bruit
         polys.append(Polygon(c[:, 0, :]))
 gdf = gpd.GeoDataFrame(geometry=polys)
+
+# gdf contient les polygones 
 
 # calcul des aires
 gdf["area_px"] = gdf["geometry"].apply(lambda poly: poly.area)  # en pixels
@@ -43,11 +46,13 @@ min_x, min_y, max_x, max_y = batiment.bounds
 width = max_x - min_x
 height = max_y - min_y
 ratio = width / height
+# on sait que le batiment est un carré : le ratio l/L proche de 1
 if not (0.95 <= ratio <= 1.05):
     raise ValueError(
         "Rutabaga ne parvient pas à détecter le batîment à partir du plan fourni et ne peut pas construire le gdf."
     )
-scale = 80 / width  # calcul de l'echelle
+
+scale = 80 / width  # calcul de l'echelle -> batiment de environ 80m
 
 gdf["geometry_m"] = gdf["geometry"].apply(
     lambda poly: shapely.affinity.scale(poly, xfact=scale, yfact=scale, origin=(0, 0))
@@ -55,12 +60,15 @@ gdf["geometry_m"] = gdf["geometry"].apply(
 gdf["area_m2"] = gdf["geometry_m"].apply(lambda poly: poly.area)  # calcul en m2
 
 # filtre : on ne garde que les volumes de moins de 1000m2
+# cela permet de ne conserver que les salles (on évite
+# les formes comme le couloirs...)
 gdf = gdf[gdf["area_m2"] < 1000]
 
 
-# 2. on extrait les noms
+# 2. on extrait les noms des salles
 
-
+# les salles info sont du type : 2048i -> si on a 20481 on 
+# transforme le 1 en i (chaque salle à 4 chiffres)
 def correction_i(text):
     return re.sub(r"(?<=\d{4})1", "i", text)  # correction si mauvaise lecture i info
 
@@ -137,8 +145,8 @@ plt.savefig("plan_virtuel_rutabaga.png", dpi=300)
 print("Ecriture du gdf produit par Rutabaga.")
 gdf = gdf.drop(columns=["geometry", "area_px"]).copy()
 
-out_dir = Path("rooms")
-app_dir = Path("app")
+out_dir = Path("rutabaga/rooms")
+app_dir = Path("rutabaga/app")
 gpkg_path = out_dir / "plan_virtuel_rutabaga.gpkg"
 geojson_path = app_dir / "static/data/plan_virtuel_rutabaga.geojson"
 
