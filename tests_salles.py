@@ -64,9 +64,12 @@ class Test_ensemble_salles:
 
         user = User(login, password)
         salles_libres = user.salles_libres(start=start_dt, end= end_dt)
-        print(salles_libres)
         assert set(salles_libres) == {'2027', '2028', '2030', '2032', '2034', '2036', '2040', '2041', 
         '2029i/2031i', '2035', '2035', '2037i/2039i', '2026', '2042', '2043', '2024i', '2044i', '2045', 
         '2023', '2022i', '2046i', '2047', '2021', '2048i', '2020', '2019i', '2018', '2017', '2012', '2007i', 
         '2001', '2016', '2015i', '2014i', '2010', '2009', '2008i', '2006', '2005', '2003', '2002'}
 
+
+class Test_modules_complementaires_salles:
+    def test_one(self):
+        # test en fonction de ce qui est fait
