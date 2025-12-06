@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rutabaga - Plan SVG Interactif</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f8f9fa;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1.2rem 2rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .btn-back {
+            padding: 0.6rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-back:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .container {
+            display: flex;
+            height: calc(100vh - 76px);
+        }
+        
+        .map-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #e8eaf6;
+        }
+        
+        .svg-container {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+            position: relative;
+        }
+        
+        .svg-container:active {
+            cursor: grabbing;
+        }
+        
+        #planSVG {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.1s ease-out;
+        }
+        
+        .room-polygon {
+            fill: rgba(102, 126, 234, 0.5);
+            stroke: #667eea;
+            stroke-width: 2;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .room-polygon:hover {
+            fill: rgba(118, 75, 162, 0.7);
+            stroke: #764ba2;
+            stroke-width: 3;
+        }
+        
+        .room-polygon.selected {
+            fill: rgba(255, 193, 7, 0.7);
+            stroke: #ff9800;
+            stroke-width: 4;
+        }
+        
+        .room-text {
+            fill: white;
+            font-size: 14px;
+            font-weight: bold;
+            text-anchor: middle;
+            pointer-events: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        /* Contrôles de zoom */
+        .zoom-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            overflow: hidden;
+            z-index: 100;
+        }
+        
+        .zoom-btn {
+            display: block;
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #667eea;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .zoom-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .zoom-btn + .zoom-btn {
+            border-top: 1px solid #e9ecef;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 380px;
+            background: white;
+            overflow-y: auto;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .sidebar-header h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .room-count {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .room-list {
+            padding: 1.5rem;
+            flex: 1;
+        }
+        
+        .room-item {
+            padding: 1.25rem;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .room-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #667eea;
+            border-radius: 12px 0 0 12px;
+            transform: scaleY(0);
+            transition: transform 0.3s;
+        }
+        
+        .room-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+            transform: translateX(4px);
+        }
+        
+        .room-item:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .room-item.selected {
+            border-color: #ff9800;
+            background: rgba(255, 193, 7, 0.1);
+            box-shadow: 0 8px 24px rgba(255, 152, 0, 0.2);
+        }
+        
+        .room-item.selected::before {
+            background: #ff9800;
+            transform: scaleY(1);
+        }
+        
+        .room-name {
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 1.15rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .room-icons {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            opacity: 0.7;
+        }
+        
+        .loading {
+            padding: 3rem 2rem;
+            text-align: center;
+            color: #64748b;
+        }
+        
+        .spinner {
+            border: 3px solid #f1f5f9;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .zoom-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 0.9rem;
+            color: #64748b;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Plan des Salles - Rutabaga</h1>
+        <a href="{{ proxy_prefix }}/home" class="btn-back">← Retour</a>
+    </div>
+    
+    <div class="container">
+        <div class="map-area">
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="zoomIn()" title="Zoom avant">+</button>
+                <button class="zoom-btn" onclick="zoomOut()" title="Zoom arrière">−</button>
+                <button class="zoom-btn" onclick="resetView()" title="Réinitialiser">⟲</button>
+            </div>
+            
+            <div class="zoom-info">
+                <span id="zoomLevel">Zoom: 100%</span> | 
+                <span style="color: #667eea;">🖱️ Glisser pour déplacer</span>
+            </div>
+            
+            <div class="svg-container" id="svgContainer">
+                <svg id="planSVG" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
+                    <!-- Image de fond -->
+                    <image id="backgroundImage" 
+                           href="{{ proxy_prefix }}/rooms/background" 
+                           width="1000" height="1000" x="0" y="0" 
+                           opacity="0.6"
+                           preserveAspectRatio="xMidYMid meet"/>
+                    
+                    <!-- Couche des salles -->
+                    <g id="roomsLayer"></g>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Salles Disponibles</h2>
+                <div class="room-count" id="roomCount">
+                    <div class="spinner"></div>
+                    Chargement...
+                </div>
+            </div>
+            
+            <div class="room-list" id="roomList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Chargement des salles...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const proxyPrefix = "{{ proxy_prefix }}";
+        
+        // Variables globales pour le zoom et le pan
+        let currentZoom = 1;
+        let currentX = 0;
+        let currentY = 0;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let selectedRoom = null;
+        
+        const svg = document.getElementById('planSVG');
+        const container = document.getElementById('svgContainer');
+        
+        // Fonctions de zoom
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.3, 5);
+            applyTransform();
+            updateZoomInfo();
+        }
+        
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom / 1.3, 0.5);
+            applyTransform();
+            updateZoomInfo();
+        }
+        
+        function resetView() {
+            currentZoom = 1;
+            currentX = 0;
+            currentY = 0;
+            applyTransform();
+            updateZoomInfo();
+        }
+        
+        function applyTransform() {
+            svg.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentZoom})`;
+        }
+        
+        function updateZoomInfo() {
+            document.getElementById('zoomLevel').textContent = 
+                `Zoom: ${Math.round(currentZoom * 100)}%`;
+        }
+        
+        // Gestion du drag pour pan
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            dragStartX = e.clientX - currentX;
+            dragStartY = e.clientY - currentY;
+            container.style.cursor = 'grabbing';
+        });
+        
+        container.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            currentX = e.clientX - dragStartX;
+            currentY = e.clientY - dragStartY;
+            applyTransform();
+        });
+        
+        container.addEventListener('mouseup', () => {
+            isDragging = false;
+            container.style.cursor = 'grab';
+        });
+        
+        container.addEventListener('mouseleave', () => {
+            isDragging = false;
+            container.style.cursor = 'grab';
+        });
+        
+        // Zoom avec la molette
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        });
+        
+        // Fonction pour convertir coordonnées GeoJSON en SVG
+        function coordsToSVG(coords, bounds) {
+            const [minX, minY, maxX, maxY] = bounds;
+            const width = maxX - minX;
+            const height = maxY - minY;
+            
+            return coords.map(ring => 
+                ring.map(([x, y]) => [
+                    ((x - minX) / width) * 1000,
+                    1000 - ((y - minY) / height) * 1000  // Inverser Y
+                ])
+            );
+        }
+        
+        // Fonction pour sélectionner une salle
+        function selectRoom(roomLabel) {
+            // Désélectionner précédent
+            if (selectedRoom) {
+                const prevPolygon = document.querySelector(`[data-room="${selectedRoom}"]`);
+                const prevItem = document.querySelector(`[data-room-item="${selectedRoom}"]`);
+                if (prevPolygon) prevPolygon.classList.remove('selected');
+                if (prevItem) prevItem.classList.remove('selected');
+            }
+            
+            // Sélectionner nouveau
+            selectedRoom = roomLabel;
+            const polygon = document.querySelector(`[data-room="${roomLabel}"]`);
+            const item = document.querySelector(`[data-room-item="${roomLabel}"]`);
+            
+            if (polygon) {
+                polygon.classList.add('selected');
+                
+                // Centrer la vue sur la salle
+                const bbox = polygon.getBBox();
+                const centerX = bbox.x + bbox.width / 2;
+                const centerY = bbox.y + bbox.height / 2;
+                
+                // Calculer le déplacement pour centrer
+                const svgRect = svg.getBoundingClientRect();
+                const targetX = svgRect.width / 2 - centerX * currentZoom;
+                const targetY = svgRect.height / 2 - centerY * currentZoom;
+                
+                currentX = targetX;
+                currentY = targetY;
+                applyTransform();
+            }
+            
+            if (item) {
+                item.classList.add('selected');
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+        
+        // Charger les salles
+        fetch(proxyPrefix + '/rooms/geojson')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                const features = data.features || [];
+                
+                document.getElementById('roomCount').textContent = 
+                    `${features.length} salle(s) disponible(s)`;
+                
+                if (features.length === 0) {
+                    document.getElementById('roomList').innerHTML = 
+                        '<div class="loading"><p>Aucune salle disponible</p></div>';
+                    return;
+                }
+                
+                // Calculer les bounds
+                let minX = Infinity, minY = Infinity;
+                let maxX = -Infinity, maxY = -Infinity;
+                
+                features.forEach(f => {
+                    if (f.geometry && f.geometry.type === 'Polygon') {
+                        f.geometry.coordinates[0].forEach(([x, y]) => {
+                            minX = Math.min(minX, x);
+                            minY = Math.min(minY, y);
+                            maxX = Math.max(maxX, x);
+                            maxY = Math.max(maxY, y);
+                        });
+                    }
+                });
+                
+                const bounds = [minX, minY, maxX, maxY];
+                const roomsLayer = document.getElementById('roomsLayer');
+                
+                // Créer les polygones SVG
+                features.forEach(feature => {
+                    const props = feature.properties;
+                    const geom = feature.geometry;
+                    
+                    if (geom && geom.type === 'Polygon') {
+                        const svgCoords = coordsToSVG(geom.coordinates, bounds);
+                        const points = svgCoords[0].map(([x, y]) => `${x},${y}`).join(' ');
+                        
+                        // Créer le polygone
+                        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                        polygon.setAttribute('points', points);
+                        polygon.setAttribute('class', 'room-polygon');
+                        polygon.setAttribute('data-room', props.label);
+                        polygon.addEventListener('click', () => selectRoom(props.label));
+                        
+                        // Calculer le centre pour le texte
+                        const centerX = svgCoords[0].reduce((sum, [x]) => sum + x, 0) / svgCoords[0].length;
+                        const centerY = svgCoords[0].reduce((sum, [, y]) => sum + y, 0) / svgCoords[0].length;
+                        
+                        // Créer le texte
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.setAttribute('x', centerX);
+                        text.setAttribute('y', centerY);
+                        text.setAttribute('class', 'room-text');
+                        text.textContent = props.label;
+                        
+                        roomsLayer.appendChild(polygon);
+                        roomsLayer.appendChild(text);
+                    }
+                });
+                
+                // Créer la liste
+                const listHtml = features.map(f => {
+                    const chars = f.properties.characteristics || {};
+                    const icons = [];
+                    
+                    if (chars.is_computer_room) icons.push('💻');
+                    if (chars.has_coffee_nearby) icons.push('☕');
+                    if (chars.has_projector) icons.push('📽️');
+                    // si on garde un peu le meme type d'icones
+                    return `
+                        <div class="room-item" 
+                             data-room-item="${f.properties.label}"
+                             onclick="selectRoom('${f.properties.label}')">
+                            <div class="room-name">Salle ${f.properties.label}</div>
+                            <div class="room-icons">${icons.join(' ') || '📍'}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('roomList').innerHTML = listHtml;
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                document.getElementById('roomCount').textContent = 'Erreur';
+                document.getElementById('roomList').innerHTML = 
+                    '<div class="loading"><p style="color: red;">Erreur: ' + error.message + '</p></div>';
+            });
+        
+        // Rendre la fonction globale
+        window.selectRoom = selectRoom;
+        window.zoomIn = zoomIn;
+        window.zoomOut = zoomOut;
+        window.resetView = resetView;
+    </script>
+</body>
+</html>

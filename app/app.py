@@ -1,14 +1,23 @@
 ###########################
 # IMPORTATION DES MODULES #
 ###########################
+import os 
+import sys
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, jsonify
 from datetime import datetime, timedelta
-from rutabaga.rooms.users import User #gestion utilisateur et connexion
-from rutabaga.rooms.salles import Salle #gestion utilisateur et connexion
+import geopandas as gpd
+import json
+#from rutabaga.rooms.users import User #gestion utilisateur et connexion
+#from rutabaga.rooms.salles import Salle #gestion utilisateur et connexion
 import pytz  # gestion des fuseaux horaire
 import secrets  # système de clé secrètes
 
+# fixing path ? 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from rooms.users import User
+from rooms.salles import Salle
 
 ###########################
 ##  GESTION PROXY ONYXIA ##
@@ -157,7 +166,51 @@ def map_view():
     salles_libres = session.get("salles_libres", [])
 
     return render_template(
-        "map.html",
+        "map_improved.html",
         proxy_prefix=proxy_prefix,
         salles_libres=salles_libres,
     )
+
+# Recupération des salles : 
+
+@app.route("/rooms/geojson")
+def get_rooms_geojson():
+    """
+   Recuperer les géometrie de gpkg des salles - utilisé pour afficher un plan interactif
+    """
+    if "login" not in session or "mdp" not in session:
+        return jsonify({"error": "Vous n'êtes pas identifié"}), 401
+    
+    try:
+        # Recup salles libres
+        salles_libres = session.get("salles_libres", [])
+        # lire le fichier avec le plan
+        gdf_path = os.path.join("rooms", "plan_virtuel_rutabaga.gpkg")
+        gdf = gpd.read_file(gdf_path, layer="salles")
+        # Filtrer
+        if salles_libres:
+            gdf = gdf[gdf['label'].isin(salles_libres)]
+        # characteristiques pour rajouter des icones plus tard.
+        # Les trois premières ça reste à faire encore ! TODO
+        gdf['characteristics'] = gdf.apply(lambda row: {
+            'has_coffee_nearby': False, 
+            'has_projector': False,      
+            'capacity': None,             
+            'is_computer_room': 'i' in str(row['label']).lower()
+        }, axis=1)
+        # Convertir en geojson pour pouvoir l'utiliser sur l'app web
+        geojson_data = json.loads(gdf.to_json())
+        
+        return jsonify(geojson_data)
+    # Jsp si c'est le code erreur approprié ? je me demande si 404 c'est pas mieux ?
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500 
+
+@app.route("/rooms/background")
+def get_background_image():
+    """
+    Utiliser le plan comme image de fond pour la montrer sur le site
+    """
+    
+    return send_file("../planENSAE2.png", mimetype='image/png')
+
