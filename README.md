@@ -1,2 +1,4 @@
 # rutabaga
-Projet d'infrastructures logicielles - ENSAE - trouver des salles libres
+
+Rutabaga est un projet d'extension de Pamplemousse permettant aux étudiants d'identifier facilement les salles inoccupées. 
+L'accès à Rutabaga se fait via les identifiants de connexion Pamplemousse. 
