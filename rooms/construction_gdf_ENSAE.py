@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-path_plan = "rutabaga/planENSAE2.png"
+path_plan = Path("planENSAE2.png")
 
 # 1. A partir d'une image on extrait les salles en gdf
 
@@ -92,7 +92,7 @@ print(f'Rutabaga a détécté {gdf.sort_values("label")["label"].tolist()}')
 print(f"Rutabaga a détecté {gdf[gdf["area_m2"]<100].shape[0]} salles de classe.")
 
 
-# 3. on extrait les fonatines à eau (point bleu)
+# 3. on extrait les fontaines à eau (point bleu)
 
 plan_color = cv2.imread(path_plan)
 hsv = cv2.cvtColor(
@@ -100,12 +100,12 @@ hsv = cv2.cvtColor(
 )  # conversion hsv pour capter les couleurs
 inf_bleu = np.array([100, 50, 50])
 sup_bleu = np.array([140, 255, 255])
-masque_bleu = cv2.inRange(hsv, inf_bleu, sup_bleu)  # masque bleu
+masque_bleu = cv2.inRange(hsv, inf_bleu, sup_bleu)  # masque bleu pour capter les fontaines
 contours_bleus, _ = cv2.findContours(
     masque_bleu, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
 )
 pts_bleus = []
-for c in contours_bleus:
+for c in contours_bleus: 
     if cv2.contourArea(c) > 1:
         M = cv2.moments(c)
         if M["m00"] != 0:
@@ -119,13 +119,14 @@ gdf_fontaines = gpd.GeoDataFrame(
     crs="EPSG:4326",
 )
 
-gdf = pd.concat([gdf, gdf_fontaines], ignore_index=True)
-gdf = gpd.GeoDataFrame(gdf, geometry="geometry", crs="EPSG:4326")
+gdf = pd.concat([gdf, gdf_fontaines], ignore_index=True) # ajout des fontaines au gdf
+gdf["label"] = gdf["label"].fillna("")
+gdf = gpd.GeoDataFrame(gdf, geometry="geometry", crs="EPSG:4326") # geodataframe
 
 
 print(gdf)
 
-# Affichage du plan virtuel
+# Affichage du plan virtuel pour check visuel 
 gdf_polys = gdf[gdf.geometry.type == "Polygon"]
 gdf_points = gdf[gdf.geometry.type == "Point"]
 gdf_polys.crs = None  # pas de ref geo
@@ -145,8 +146,8 @@ plt.savefig("plan_virtuel_rutabaga.png", dpi=300)
 print("Ecriture du gdf produit par Rutabaga.")
 gdf = gdf.drop(columns=["geometry", "area_px"]).copy()
 
-out_dir = Path("rutabaga/rooms")
-app_dir = Path("rutabaga/app")
+out_dir = out_dir = Path(".") #Path("rutabaga/rooms")
+app_dir = Path("../app")  #Path("rutabaga/app")
 gpkg_path = out_dir / "plan_virtuel_rutabaga.gpkg"
 geojson_path = app_dir / "static/data/plan_virtuel_rutabaga.geojson"
 

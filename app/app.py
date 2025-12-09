@@ -6,6 +6,7 @@ import sys
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, jsonify
 from datetime import datetime, timedelta
+from pathlib import Path
 import geopandas as gpd
 import json
 #from rutabaga.rooms.users import User #gestion utilisateur et connexion
@@ -211,6 +212,6 @@ def get_background_image():
     """
     Utiliser le plan comme image de fond pour la montrer sur le site
     """
-    
-    return send_file("../planENSAE2.png", mimetype='image/png')
+    path = Path(__file__).parent.parent / "rooms" / "planENSAE2.png"
+    return send_file(path, mimetype='image/png')
 

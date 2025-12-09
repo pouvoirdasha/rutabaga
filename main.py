@@ -1,11 +1,7 @@
 """
 Ce fichier servira de point d'entrée dans l'appli web rutabaga. Il suffira d'utiliser la commande py main.py pour faire fonctionner le code. 
-
 """
 
-"""
-main.py - Lanceur de l'application Rutabaga
-"""
 import sys
 import os
 
