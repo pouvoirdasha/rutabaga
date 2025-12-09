@@ -52,13 +52,6 @@ class User:
     """
     La classe User permet de simuler le comportement d'un utilisateur sur
     Pamplemousse afin de récupèrer l'emploi du temps sur une période donnée.
-
-        Paramètres
-    ----------
-    identifiant : str
-        Identifiant de connexion Pamplemousse.
-    mdp : str
-        Mot de passe de connexion Pamplemousse.
     """
 
     def __init__(self, identifiant: str, mdp: str):
@@ -66,11 +59,6 @@ class User:
         Initialisation de la classe User.
         Cette sessions permet de conserver les cookies pour rester
         connecté à Pamplemousse.
-
-
-        Args:
-            identifiant (str) : identifiant sur pamplemousse
-            mdp (str) : mot de passe sur pamplemousse
         """
         self.id = identifiant
         self.mdp = mdp
@@ -80,9 +68,6 @@ class User:
     def connexion(self) -> bool:
         """
         Connexion sur Pamplemousse.
-
-        Return:
-            bool: True si la connexion a pamplemousse fonctionne, False sinon
         """
         url_page = "https://pamplemousse.ensae.fr"
 
@@ -131,18 +116,6 @@ class User:
     end: datetime | None = None) -> list[str] | None:
         """
         Récupération de la liste des salles occupées d'après Pamplemousse sur un créneau donnée.
-
-        Par défaut :
-        - `start` = maintenant (fuseau Europe/Paris)
-        - `end` = start + 1 heure
-
-        Args:
-            start (int): date et heure du début de la recherche des salles occupées (argument optionnel, par défaut vaut la date et heure actuelle)
-            end (int): date et heure de la fin de la recherche des salles occupées (argument optionnel, par défaut start +1h)
-
-
-        Return:
-            list[str] | None: renvoie le nom des salles (ou None en cas d'échec)
         """
         if not self.autent:
             print("Tentative de connexion à Rutabaga via Pamplemousse...")
@@ -220,13 +193,6 @@ class User:
     def salles_libres(self, start: datetime = None, end: datetime = None):
         """
         Permet d'obtenir les salles libres sur un intervalle de temps.
-
-        Args:
-            start (datetime) : début du créneau
-            end (datetime) : fin du créneau
-
-        Return:
-            list[str] | None contenant les noms des salles disponibles entre `start` et `end`.
         """
 
         # lecture du plan virtuel
@@ -238,8 +204,10 @@ class User:
             return None
 
         # on récupère les salles du plan du 2e étage
+        # on fait fait une liste de salle avec des numéros
+        # ce qui exclut ESC, ASC, WC, etc.
         liste_salles = [
-            s for s in gdf["label"].tolist() if s is not None and re.search(r"\d", s)
+            s for s in gdf["label"].tolist() if s is not None and re.search(r"\d", s) 
         ]
 
         # on en déduit les salles dispo = salles non occupées
