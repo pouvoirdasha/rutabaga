@@ -166,7 +166,7 @@ def map_view():
     salles_libres = session.get("salles_libres", [])
 
     return render_template(
-        "map_improved.html",
+        "map.html",
         proxy_prefix=proxy_prefix,
         salles_libres=salles_libres,
     )
@@ -213,4 +213,3 @@ def get_background_image():
     """
     path = Path(__file__).parent.parent / "rooms" / "planENSAE2.png"
     return send_file(path, mimetype='image/png')
-
