@@ -18,7 +18,6 @@ import secrets  # système de clé secrètes
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from rooms.users import User
-from rooms.salles import Salle
 
 ###########################
 ##  GESTION PROXY ONYXIA ##
