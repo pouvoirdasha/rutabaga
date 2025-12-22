@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rutabaga - Connexion</title>
+    <link rel="stylesheet" href="{{ proxy_prefix }}/static/css/style.css">
+</head>
+<body>
+    <div id="loader" class="loading-overlay">
+        <img src="{{ proxy_prefix }}/static/css/logo.png" class="spinner-rutabaga" alt="Loading">
+        <p>Chargement<span id="dots">...</span></p>
+    </div>
+
+    <header class="page-header">
+       
+        <img src="{{ proxy_prefix }}/static/css/logo.png" alt="Logo" class="logo-header">
+        <h1 class="pixelify-rutabaga site-title">rutabaga</h1>
+        
+    </header>
+
+    <div class="login-container"> 
+        <div class="login-box">
+            <h2>connexion</h2>
+            
+            <form id="loginForm" method="post" action="{{ proxy_prefix }}/">
+                <input type="text" name="login" placeholder="Login" required>
+                <input type="password" name="mot_de_passe" placeholder="Mot de passe" required>
+                <button type="submit">se connecter</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Affichage du loader
+        document.getElementById('loginForm').onsubmit = function() {
+            document.getElementById('loader').style.display = 'flex';
+            // possible de rajouter un temps de latence mais je crois que , 
+            // Flask gére le temps de réponse tout seul ??
+        };
+
+        // Animation des points qui avancent
+        let dots = 0;
+        setInterval(() => {
+            dots = (dots + 1) % 4;
+            document.getElementById('dots').textContent = ".".repeat(dots);
+        }, 500);
+    </script>
+</body>
+</html>

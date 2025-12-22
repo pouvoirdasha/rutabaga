@@ -90,7 +90,7 @@ def connexion():
             message = f"Erreur : {e}"
 
     # Lorsque la méthode est GET : on affiche la page de connexion
-    return render_template("connexion.html", login=login, proxy_prefix=proxy_prefix)
+    return render_template("connexion_new.html", login=login, proxy_prefix=proxy_prefix)
 
 
 ##### PAGE D'ACCUEIL #####
