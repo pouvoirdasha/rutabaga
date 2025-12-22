@@ -20,8 +20,8 @@
 /* La classe de Google Fonts */
 .pixelify-rutabaga {
   font-family: "Pixelify Sans", sans-serif;
-  font-optical-sizing: auto; /* Ajuste le rendu selon la taille du texte */
-  font-weight: 500;  
+  font-optical-sizing: auto; /* ajuste le rendu selon la taille du texte */
+  font-weight: 500;  /* opti comme taille et poids de police */
   text-transform: lowercase;        /* On peut monter un peu le poids pour le titre */
   font-style: normal;
 }
@@ -116,12 +116,12 @@ button {
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 18px;
     transition: background 0.3s;
 }
-
+/*quand on met la souris ça change de couleur */
 button:hover {
-    background-color: var(--mauve-shadow);
+    background-color: var(--harvest-gold);
 }
 
 
@@ -130,7 +130,7 @@ button:hover {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
-
+/* pour le chargement */
 .loading-overlay {
     display: none; 
     position: fixed;
