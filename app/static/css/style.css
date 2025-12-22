@@ -1,7 +1,6 @@
 /* Styles généraux */
 /* Importation des polices */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Pixelify+Sans:wght@400..700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600&family=Pixelify+Sans:wght@400..700&display=swap');
 :root {
     /* La palette extaite du logo + qq couleurs en plus cf misc_docs et specifications_design */
     --black: #000000ff;
@@ -36,7 +35,7 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif; /* Police pour le contenu  */
+    font-family: 'Sora', sans-serif; /* Police pour le contenu  */
     background-color: #f9fafb; /* Fond gris très clair style OWA */
     margin: 0;
     color: var(--deep-mocha);
@@ -98,13 +97,26 @@ body {
     font-size: 30px; 
 }
 
-input {
+/* Style pour les champs de saisie (inputs) */
+input[type="date"], 
+input[type="time"] {
+    font-family: 'Sora', sans-serif;
+    padding: 10px;
+    border: 2px solid var(--deep-mocha);
+    border-radius: 8px;
+    background-color: white;
+    color: var(--deep-mocha);
+    cursor: pointer; /* Change la souris en main pour indiquer que c'est cliquable */
+    outline: none;
+    font-size: 1rem;
     width: 90%;
-    padding: 12px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-family: 'Inter', sans-serif;
+}
+
+/* Effet quand on clique dans le champ */
+input[type="date"]:focus, 
+input[type="time"]:focus {
+    border-color: var(--amber-gold);
+    box-shadow: 0 0 5px rgba(251, 192, 50, 0.5);
 }
 
 button {
@@ -151,3 +163,56 @@ button:hover {
     height: 120px; 
     width: auto;
 }
+
+
+/* Style de la section de filtrage */
+.filter-section {
+    background-color: var(--light-red-bg);
+    padding: 30px;
+    border-radius: 15px;
+    margin: 20px 0;
+    color: var(--deep-mocha);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.filter-section h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: 28px; /* "En gros" */
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+
+/* Style du Footer */
+.main-footer {
+    background-color: var(--deep-mocha);
+    color: var(--white);
+    font-family: 'Sora', sans-serif;
+    padding: 40px;
+    margin-top: 50px;
+}
+
+.footer-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colonnes */
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-col h4 {
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--amber-gold);
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+.footer-col a {
+    color: var(--amber-gold);
+    text-decoration: none;
+}
+
+.footer-col i { /* Pour l'icône git */
+    margin-right: 8px;
+}
+

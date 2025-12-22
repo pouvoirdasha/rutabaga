@@ -151,7 +151,7 @@ def home():
 
     # affichage du résultat
     return render_template(
-        "home.html",
+        "home_new.html",
         login=login,
         proxy_prefix=proxy_prefix,
         start_time=start_time,

@@ -2,7 +2,7 @@
 
 ## Polices 
 Pixelify sans, sans majuscule pour rutabaga (le nom) - taille 60
-inter pour demande de login et les onglets - semi bold (600) et normal (400) - taille 30 (à tester)
+sora pour demande de login et les onglets - semi bold (600) et normal (400) - taille 30 (à tester)
 
 Importables avec google : (cf ce lien)[https://help.brevo.com/hc/fr/articles/7978656575506-Utiliser-une-police-Google-dans-une-landing-page]
 ## Couleurs 

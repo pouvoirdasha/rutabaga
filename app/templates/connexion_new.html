@@ -30,6 +30,29 @@
         </div>
     </div>
 
+    
+    <footer style="background-color: var(--deep-mocha); color: white; padding: 50px 20px; margin-top: 80px; font-family: 'Sora';">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); max-width: 1000px; margin: 0 auto; gap: 40px;">
+            <div>
+                <h4 style="border-bottom: 2px solid var(--amber-gold); display: inline-block; margin-bottom: 15px; font-weight: 600;">L'équipe</h4>
+                <p style="font-size: 14px; line-height: 1.6; opacity: 0.9;">Rutabaga est une appli web créée par GARBE Matéo, HARYFULLINA Dariia, LECHAT Jonas et NASS Sacha.</p>
+            </div>
+            <div>
+                <h4 style="border-bottom: 2px solid var(--amber-gold); display: inline-block; margin-bottom: 15px; font-weight: 600;">Code Source</h4>
+                <p style="font-size: 14px;">
+                    <a href="https://github.com/pouvoirdasha/rutabaga" style="color: var(--amber-gold); text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="20" style="filter: invert(1);">
+                        Lien du repo GitHub ici
+                    </a>
+                </p>
+            </div>
+            <div>
+                <h4 style="border-bottom: 2px solid var(--amber-gold); display: inline-block; margin-bottom: 15px; font-weight: 600;">À propos</h4>
+                <p style="font-size: 14px; line-height: 1.6; opacity: 0.9;">Projet développé dans le cadre du cours sur les infrastructures logicielles à l'ENSAE, Décembre 2026.</p>
+            </div>
+        </div>
+    </footer>
+
     <script>
         // Affichage du loader
         document.getElementById('loginForm').onsubmit = function() {
@@ -45,5 +68,6 @@
             document.getElementById('dots').textContent = ".".repeat(dots);
         }, 500);
     </script>
+    
 </body>
 </html>
