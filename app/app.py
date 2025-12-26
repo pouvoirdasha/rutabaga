@@ -138,6 +138,13 @@ def home():
         start_dt = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
         end_dt = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
 
+        # pour être sur qu'il n'y a pas de pb si utilisateur met les heures dans la mauvais sens 
+        if end_dt < start_dt:
+            # on échange les deux objets datetime
+            start_dt, end_dt = end_dt, start_dt
+            start_time = start_dt.strftime("%H:%M") # les mettre dans le bon ordre sur le site dans les champs 
+            end_time = end_dt.strftime("%H:%M")
+
         # récupération des salles libres
         # avec salles_libres de la classe User
         salles = user.salles_libres(start=start_dt, end=end_dt)
@@ -171,45 +178,3 @@ def map_view():
         salles_libres=salles_libres,
     )
 
-# Recupération des salles : 
-
-@app.route("/rooms/geojson")
-def get_rooms_geojson():
-    """
-   Recuperer les géometrie de gpkg des salles - utilisé pour afficher un plan interactif
-    """
-    if "login" not in session or "mdp" not in session:
-        return jsonify({"error": "Vous n'êtes pas identifié"}), 401
-    
-    try:
-        # Recup salles libres
-        salles_libres = session.get("salles_libres", [])
-        # lire le fichier avec le plan
-        gdf_path = os.path.join("rooms", "plan_virtuel_rutabaga.gpkg")
-        gdf = gpd.read_file(gdf_path, layer="salles")
-        # Filtrer
-        if salles_libres:
-            gdf = gdf[gdf['label'].isin(salles_libres)]
-        # characteristiques pour rajouter des icones plus tard.
-        # Les trois premières ça reste à faire encore ! TODO
-        gdf['characteristics'] = gdf.apply(lambda row: {
-            'has_coffee_nearby': False, 
-            'has_projector': False,      
-            'capacity': None,             
-            'is_computer_room': 'i' in str(row['label']).lower()
-        }, axis=1)
-        # Convertir en geojson pour pouvoir l'utiliser sur l'app web
-        geojson_data = json.loads(gdf.to_json())
-        
-        return jsonify(geojson_data)
-    # Jsp si c'est le code erreur approprié ? je me demande si 404 c'est pas mieux ?
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500 
-
-@app.route("/rooms/background")
-def get_background_image():
-    """
-    Utiliser le plan comme image de fond pour la montrer sur le site
-    """
-    path = Path(__file__).parent.parent / "rooms" / "planENSAE2.png"
-    return send_file(path, mimetype='image/png')
