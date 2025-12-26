@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rutabaga accueil</title>
+    <link rel="stylesheet" href="{{ proxy_prefix }}/static/css/style.css">
+</head>
+<body>
+
+    <div id="loader" class="loading-overlay">
+        <img src="{{ proxy_prefix }}/static/css/logo.png" class="spinner-rutabaga" alt="Chargement">
+        <p>recherche de salles libres<span id="dots">...</span></p>
+    </div>
+
+    <header class="page-header">
+        <div class="logo-header">
+            <img src="{{ proxy_prefix }}/static/css/logo.png" alt="Logo Rutabaga" style="width: 100%;">
+        </div>
+        <h1 class="pixelify-rutabaga site-title">rutabaga</h1>
+    </header>
+
+    <main>
+        
+        <h2>bienvenue sur rutabaga, {{ login }} !</h2>
+
+        <section class="description-text">
+            <h3 class="pixelify-rutabaga kesako-title">rutabaga, c'est quoi ?</h3>
+            <p>
+                rutabaga est une appli créée dans le cadre du cours d'Infrastructures Logicielles à l'ENSAE qui permet de voir les salles disponibles sur le créneau de votre choix ! 
+                Cela vous permet d'avoir un endroit pour travailler et étudier quand les salles du troisième sont prises, sans passer par la selection des salles une à une sur le pamplemousse.
+            </p>
+        </section>
+
+        <section class="filter-section" style="background-color: #FCE8E8;">
+            <h3 class="body" style="font-size: 24px; color: var(--deep-mocha); text-transform: none;">
+                Choisissez votre créneau pour voir les salles disponibles
+            </h3>
+            
+            <form id="searchForm" method="post" action="{{ proxy_prefix }}/home">
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label style="font-weight: 600; display: block; margin-bottom: 8px;">jour</label>
+                        <input type="date" name="date" value="{{ date }}" required onclick="this.showPicker()">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label style="font-weight: 600; display: block; margin-bottom: 8px;">début (8h-20h)</label>
+                        <input type="time" name="start_time" min="08:00" max="20:00" value="{{ start_time }}" required onclick="this.showPicker()">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label style="font-weight: 600; display: block; margin-bottom: 8px;">fin (8h-20h)</label>
+                        <input type="time" name="end_time" min="08:00" max="20:00" value="{{ end_time }}" required onclick="this.showPicker()">
+                    </div>
+                </div>
+                <button type="submit" style="margin-top: 25px; width: auto; padding: 12px 50px;">
+                    vérifier la disponibilité
+                </button>
+            </form>
+        </section>
+
+        {% if salles is not none %}
+        <section>
+            <h3 class="section-title">salles disponibles</h3>
+            
+            {% if salles %}
+                <div class="room-container">
+                    {% for salle in salles %}
+                        <div class="room-badge">
+                            <span>{{ salle }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div style="margin-top: 50px; text-align: center;">
+                    <a href="{{ proxy_prefix }}/map" style="text-decoration: none;">
+                        <button type="button" style="background-color: var(--amber-gold); color: var(--deep-mocha); width: auto;">
+                            voir sur le plan interactif
+                        </button>
+                    </a>
+                </div>
+            {% else %}
+                <p style="color: #666; font-style: italic;">aucune salle disponible pour ce créneau.</p>
+            {% endif %}
+        </section>
+        {% endif %}
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <h4>L'équipe</h4>
+                <p>Rutabaga est une appli web créée par GARBE Matéo, HARYFULLINA Dariia, LECHAT Jonas et NASS Sacha.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Code Source</h4>
+                <p>
+                    <a href="https://github.com/pouvoirdasha/rutabaga" target="_blank">
+                        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="18" style="filter: invert(1); vertical-align: middle;">
+                        Lien du repo GitHub ici
+                    </a>
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>À propos</h4>
+                <p>Projet développé dans le cadre du cours sur les infrastructures logicielles à l'ENSAE, Décembre 2026.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // afficher le loader (animation rutabaga) - quand on envoit la requête
+        document.getElementById('searchForm').onsubmit = function() {
+            document.getElementById('loader').style.display = 'flex';
+        };
+
+        // Animation des petits points (comme sur la première page)
+        let dots = 0;
+        setInterval(() => {
+            dots = (dots + 1) % 4; // Boucle pour les points !!
+            document.getElementById('dots').textContent = ".".repeat(dots);
+        }, 500);
+
+    </script>
+</body>
+</html>
