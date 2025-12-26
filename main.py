@@ -18,9 +18,8 @@ if __name__ == '__main__':
     ...................
     Serveur démarré !
     URL : http://127.0.0.1:5000
-    
     Ouvrez cette adresse dans votre navigateur
-    Appuyez sur Ctrl+C pour arrêter
+    Ctrl + C pour arrêter
     """)
     
     app.run(debug=True, host='127.0.0.1', port=5000)
