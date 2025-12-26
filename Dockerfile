@@ -1,16 +1,21 @@
 FROM python:3.13-slim
 
-WORKDIR /app
+# Installer uv
+COPY --from=ghcr.io/astral-sh/uv:0.9.18 /uv /uvx /bin/
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-cache
+
 
 #copie code Flask et scripts
 COPY app/ ./app
-COPY rutabaga/ ./rutabaga
+COPY rooms/ ./rooms
+COPY main.py ./
 
 #exposition port flask
 EXPOSE 5000
 
 #commande de lancement de l'app
-CMD ["python", "app/app.py"]
+
+CMD ["uv", "run", "python", "main.py"]

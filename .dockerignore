@@ -1,0 +1,6 @@
+.vscode 
+tests/
+README.md
+env/
+Dockerfile
+requirements-dev.txt

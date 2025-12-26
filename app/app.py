@@ -171,6 +171,7 @@ def home():
 def map_view():
     proxy_prefix = get_proxy_prefix()
     salles_libres = session.get("salles_libres", [])
+    #print(f"Pour debug MAP - Salles envoyées : {salles_libres}")
 
     return render_template(
         "map.html",
