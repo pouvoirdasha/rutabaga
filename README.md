@@ -12,7 +12,7 @@ Le projet est porté par 4 étudiants :
 * @xdalp / @mgarbe
 
 ## Guide d'installation depuis Git : 
-Pour faire tourner le code depuis votre ordinateur, il est préférable d'installer uv et utiliser uv sync avec le uv.lock (pour la version dev). Pour installer uv, voir (la documentation)[https://docs.astral.sh/uv/getting-started/installation/#installation-methods].
+Pour faire tourner le code depuis votre ordinateur, il est préférable d'installer uv et utiliser uv sync avec le uv.lock (pour la version dev). Pour installer uv, voir [la documentation](https://docs.astral.sh/uv/getting-started/installation/#installation-methods).
 Pour synchroniser, faire : 
 ```
 uv sync
