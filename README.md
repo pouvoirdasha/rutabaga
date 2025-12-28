@@ -10,4 +10,20 @@ Le projet est porté par 4 étudiants :
 * @Sacha-N
 * @jlechat 
 * @xdalp / @mgarbe
-* 
+
+## Guide d'installation depuis Git : 
+Pour faire tourner le code depuis votre ordinateur, il est préférable d'installer uv et utiliser uv sync avec le uv.lock (pour la version dev). Pour installer uv, voir (la documentation)[https://docs.astral.sh/uv/getting-started/installation/#installation-methods].
+Pour synchroniser, faire : 
+```
+uv sync
+```
+Activer l'environnement virtuel de manière habituelle. 
+L'appli peut-être lancée avec 
+```
+py main.py
+```
+Ou avec votre commande habituelle (python3/python/.. etc). L'adresse sur laquelle il est possible d'accéder à l'app est indiquée dans les logs du lancement. 
+
+## Conteneur docker : 
+
+
