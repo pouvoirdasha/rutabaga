@@ -25,7 +25,14 @@ py main.py
 Ou avec votre commande habituelle (python3/python/.. etc). L'adresse sur laquelle il est possible d'accéder à l'app est indiquée dans les logs du lancement. 
 
 ## Conteneur docker : 
-
+Le dockerfile est pre-configuré pour avoir une version light du projet qui pèse environ 1 giga. La première version de dockerfile avec uv donnait un container de 12 giga. Pour utiliser le docker, il est possible d'utiliser la commande suivant pour build le container, depuis la racine du projet : 
+```
+docker build -t rutabaga-light .
+```
+Et ensuite, il est possible de le run (et accéder au projet sur l'adresse http://localhost:5000/ : 
+```
+ docker run -p 5000:5000 rutabaga-light
+```
 
 #### Disclaimer sur l'usage de l'IA 
 
