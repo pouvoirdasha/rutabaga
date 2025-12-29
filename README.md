@@ -27,3 +27,6 @@ Ou avec votre commande habituelle (python3/python/.. etc). L'adresse sur laquell
 ## Conteneur docker : 
 
 
+#### Disclaimer sur l'usage de l'IA 
+
+A titre personnel, @pouvoirdasha certifie ne pas avoir utilisé l'IA pour les tâches en python. Pour la mise en page, et en particulier pour la partie javascript de leaflet pour gérer la carte, le modèle Gemini a été utilisé. Le reste en grande partie a été inspiré des threads stack overflow, des tutoriels en ligne, et des sites design (palette, polices, direction artistique du projet).
