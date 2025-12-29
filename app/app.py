@@ -4,17 +4,15 @@
 import os 
 import sys
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import datetime, timedelta
-from pathlib import Path
-import geopandas as gpd
-import json
+
 #from rutabaga.rooms.users import User #gestion utilisateur et connexion
 #from rutabaga.rooms.salles import Salle #gestion utilisateur et connexion
 import pytz  # gestion des fuseaux horaire
 import secrets  # système de clé secrètes
 
-# fixing path ? 
+# gérer le chemin pour import 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from rooms.users import User
@@ -172,10 +170,16 @@ def map_view():
     proxy_prefix = get_proxy_prefix()
     salles_libres = session.get("salles_libres", [])
     #print(f"Pour debug MAP - Salles envoyées : {salles_libres}")
+    nombre_salles = len(salles_libres)
+    # récupération des infos dont on a besoin pour indiquer que meme si les salles info sont dispo
+    # elles sont fermées à clé depuis la rentrée quand inutilisées 
+    salles_info = [s for s in salles_libres if s.endswith('i')]
 
     return render_template(
-        "map.html",
+        "map_improved.html",
         proxy_prefix=proxy_prefix,
+        salles_info=salles_info,
         salles_libres=salles_libres,
+        nb_salles=nombre_salles
     )
 
