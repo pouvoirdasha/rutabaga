@@ -1,11 +1,9 @@
 FROM python:3.13-slim
-
-
+ENV FLASK_DEBUG=1
 
 WORKDIR /rutabaga
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
-
 
 #copie code Flask et scripts
 COPY app/ ./app
