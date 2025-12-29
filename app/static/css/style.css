@@ -258,6 +258,77 @@ h2 {
     font-size: 1.1rem;
 }
 
+/* MAP */ 
+
+/* Conteneurs principaux */
+.container-map { 
+    display: flex; 
+    height: calc(100vh - 70px); 
+}
+
+#map { 
+    flex: 1; 
+    background: #f0f0f0; 
+}
+
+/* Sidebar du plan */
+.sidebar { 
+    width: 320px; 
+    background: white; 
+    border-left: 2px solid var(--deep-mocha); 
+    display: flex; 
+    flex-direction: column; 
+}
+
+.sidebar-header { 
+    padding: 15px; 
+    background: var(--mauve-shadow); 
+    color: white; 
+}
+
+.room-list { 
+    flex: 1; 
+    overflow-y: auto; 
+}
+
+/* Cartes des salles dans la liste */
+.room-card { 
+    padding: 15px; 
+    border-bottom: 1px solid #eee; 
+    cursor: pointer; 
+    border-left: 5px solid var(--palm-leaf); 
+    transition: background 0.2s;
+}
+
+.room-card:hover { 
+    background: #f9f9f9; 
+}
+
+/* LOGOS WC etc  */
+.service-marker {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 30px; 
+    height: 30px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+}
+
+/* Chemins vers tes images */
+.icon-fontaine { background-image: url("fontaine.png"); }
+.icon-cafe { background-image: url("cafe.png"); }
+.icon-wc { background-image: url("wc2.png"); }
+
+/* Étiquettes de texte sur la carte */
+.map-label { 
+    font-family: 'Sora', sans-serif; 
+    font-weight: bold; 
+    color: var(--deep-mocha); 
+    text-align: center; 
+    font-size: 12px; 
+}
+
 /* Style du Footer */
 .main-footer {
     background-color: var(--deep-mocha);
