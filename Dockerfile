@@ -1,11 +1,10 @@
 FROM python:3.13-slim
 
-# Installer uv
-COPY --from=ghcr.io/astral-sh/uv:0.9.18 /uv /uvx /bin/
 
-WORKDIR /app
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-cache
+
+WORKDIR /rutabaga
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
 
 
 #copie code Flask et scripts
@@ -18,4 +17,4 @@ EXPOSE 5000
 
 #commande de lancement de l'app
 
-CMD ["uv", "run", "python", "main.py"]
+CMD ["python3", "main.py"]
