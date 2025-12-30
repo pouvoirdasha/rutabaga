@@ -17,12 +17,11 @@ Pour synchroniser, faire :
 ```
 uv sync
 ```
-Activer l'environnement virtuel de manière habituelle. 
-L'appli peut-être lancée avec 
+L'appli peut-être lancée avec :
 ```
-py main.py
+uv run python main.py
 ```
-Ou avec votre commande habituelle (python3/python/.. etc). L'adresse sur laquelle il est possible d'accéder à l'app est indiquée dans les logs du lancement. 
+L'adresse sur laquelle il est possible d'accéder à l'app est indiquée dans les logs du lancement. 
 
 ## Conteneur docker : 
 Le dockerfile est pre-configuré pour avoir une version light du projet qui pèse environ 1 giga. La première version de dockerfile avec uv donnait un container de 12 giga. Pour utiliser le docker, il est possible d'utiliser la commande suivant pour build le container, depuis la racine du projet : 
